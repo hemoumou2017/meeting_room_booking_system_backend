@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 09:39:49
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 10:28:55
+ * @LastEditTime: 2024-09-27 14:50:26
  * @FilePath: /nest学习/meeting_room_booking_system_backend/src/main.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -14,6 +14,7 @@ import { FormatResponseInterceptor } from './format-response.interceptor';
 import { InvokeRecordInterceptor } from './invoke-record.interceptor';
 import { UnloginFilter } from './unlogin.filter';
 import { CustomExceptionFilter } from './custom-exception.filter';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -21,6 +22,22 @@ async function bootstrap() {
   app.useGlobalInterceptors(new InvokeRecordInterceptor());
   app.useGlobalFilters(new UnloginFilter());
   app.useGlobalFilters(new CustomExceptionFilter()); // 处理逻辑里 throw http 异常抛出   格式转换
+
+  const config = new DocumentBuilder()
+    .setTitle('Meeting Room Booking System')
+    .setDescription('The backend of the meeting room booking system')
+    .setVersion('1.0')
+    .addBearerAuth({
+      type: 'http',
+      description: 'JWT Authorization',
+      name: 'Authorization',
+      scheme: 'Bearer',
+    })
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-doc', app, document);
+
   const configService = app.get(ConfigService);
   await app.listen(configService.get('nest_server_port'));
 }

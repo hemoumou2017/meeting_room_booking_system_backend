@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 09:39:49
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 14:22:47
+ * @LastEditTime: 2024-09-27 15:06:07
  * @FilePath: /nest学习/meeting_room_booking_system_backend/README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -103,4 +103,20 @@ $ npm run test:cov
 模糊搜索就是通过 like 来匹配。
 
 此外，ParseIntPipe 我们自定义了错误格式，还使用了 DefaultValuePipe 设置了默认值。
+```
+
+## 第五步
+
+```
+swagger 生成了接口文档。
+
+在 main.ts 里调用 SwaggerModule.setup 来生成接口文档。
+
+然后用 @ApiQuery、@ApiBody、@ApiResponse、@ApiProperty 等来标识每个接口的参数和响应。
+
+并且通过 @ApiBearerAuth 标识需要 jwt 认证的接口。
+
+返回对象的接口需要把它封装成 vo，然后再添加 @ApiProperty。
+
+
 ```

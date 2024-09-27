@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 14:21:18
+ * @LastEditTime: 2024-09-27 15:04:20
  * @FilePath: /nest学习/meeting_room_booking_system_backend/src/user/user.service.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -20,6 +20,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from './vo/login-user.vo';
 import { UpdatePwdDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserListVo } from './vo/user-list.vo';
 @Injectable()
 export class UserService {
   private logger = new Logger();
@@ -272,7 +273,7 @@ export class UserService {
       condition.email = Like(`%${email}%`);
     }
 
-    const [users, total] = await this.userRepository.findAndCount({
+    const [users, totalCount] = await this.userRepository.findAndCount({
       select: [
         'id',
         'username',
@@ -288,9 +289,53 @@ export class UserService {
       where: condition,
     });
 
-    return {
-      total,
-      users,
-    };
+    const vo = new UserListVo();
+    vo.users = users;
+    vo.totalCount = totalCount;
+    return vo;
+  }
+
+  async findUsers(
+    username: string,
+    nickName: string,
+    email: string,
+    pageNo: number,
+    pageSize: number,
+  ) {
+    const skipCount = (pageNo - 1) * pageSize;
+
+    const condition: Record<string, any> = {};
+
+    if (username) {
+      condition.username = Like(`%${username}%`);
+    }
+    if (nickName) {
+      condition.nickName = Like(`%${nickName}%`);
+    }
+    if (email) {
+      condition.email = Like(`%${email}%`);
+    }
+
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      select: [
+        'id',
+        'username',
+        'nickName',
+        'email',
+        'phoneNumber',
+        'isFrozen',
+        'headPic',
+        'createTime',
+      ],
+      skip: skipCount,
+      take: pageSize,
+      where: condition,
+    });
+
+    const vo = new UserListVo();
+
+    vo.users = users;
+    vo.totalCount = totalCount;
+    return vo;
   }
 }
