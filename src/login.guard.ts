@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 15:59:31
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-26 16:20:51
+ * @LastEditTime: 2024-09-27 10:23:52
  * @FilePath: /nest学习/meeting_room_booking_system_backend/src/login.guard.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -18,6 +18,7 @@ import { Permission } from './user/entities/permission.entity';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
+import { UnLoginException } from './unlogin.filter';
 interface JwtUserData {
   userId: number;
   username: string;
@@ -53,7 +54,7 @@ export class LoginGuard implements CanActivate {
     const authorization = request.headers.authorization;
 
     if (!authorization) {
-      throw new UnauthorizedException('用户未登录');
+      throw new UnLoginException();
     }
     try {
       const token = authorization.split(' ')[1];

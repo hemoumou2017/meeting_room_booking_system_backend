@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 09:39:49
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 10:09:27
+ * @LastEditTime: 2024-09-27 14:22:47
  * @FilePath: /nest学习/meeting_room_booking_system_backend/README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -74,7 +74,9 @@ $ npm run test:cov
 封装了几个自定义装饰器，用于方便的设置 metadata，从 request 取数据注入 handler。
 
 ```
+
 ## third step
+
 ```
 添加了 interceptor 用来对响应格式做转换，改成 {code、message、data} 的格式，用到了 map 操作符。
 
@@ -85,4 +87,20 @@ $ npm run test:cov
 这些流程都差不多，首先实现一个查询的接口用来回显数据，通过 vo 封装返回的数据。
 
 然后提交数据进行更新，用到的 userId 通过之前封装的 @UserInfo 装饰器从 request.user 来取。
+```
+
+## 第四步
+
+```
+自定义 exception filter，catch 了 HTTPException，返回了自定义格式的响应，统一了响应格式。
+
+冻结用户接口比较简单，就是修改 users 表的一个字段。
+
+用户列表支持了分页查询和模糊搜索：
+
+分页查询就是根据 (pageNo -1) * pageSize 计算出从哪里开始，然后取 pageSize 条。
+
+模糊搜索就是通过 like 来匹配。
+
+此外，ParseIntPipe 我们自定义了错误格式，还使用了 DefaultValuePipe 设置了默认值。
 ```

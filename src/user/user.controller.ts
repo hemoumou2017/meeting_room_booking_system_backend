@@ -6,6 +6,9 @@ import {
   Query,
   Inject,
   UnauthorizedException,
+  ParseIntPipe,
+  BadRequestException,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -22,6 +25,7 @@ import {
 import { UserDetailVo } from './vo/user-info.vo';
 import { UpdatePwdDto } from './dto/update-user-password.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { gernerateParseIntPipe } from 'src/utils';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -278,5 +282,37 @@ export class UserController {
     });
 
     return '发送成功';
+  }
+
+  @Get('freeze')
+  @RequireLogin()
+  async freeze(@Query('userId') userId: number) {
+    await this.userService.freezeUserById(userId);
+    return 'success';
+  }
+
+  @Get('list')
+  @RequireLogin()
+  async list(
+    @Query('pageNo', new DefaultValuePipe(1), gernerateParseIntPipe('pageNo'))
+    pageNo: number,
+    @Query(
+      'pageSize',
+      new DefaultValuePipe(2),
+      gernerateParseIntPipe('pageSize'),
+    )
+    pageSize: number,
+    @Query('username') username: string,
+    @Query('email') email: string,
+    @Query('nickName') nickName: string,
+  ) {
+    const data = await this.userService.findUsersByPage(
+      pageNo,
+      pageSize,
+      username,
+      email,
+      nickName,
+    );
+    return data;
   }
 }
