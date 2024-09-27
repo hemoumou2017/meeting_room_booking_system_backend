@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-26 15:40:37
+ * @LastEditTime: 2024-09-27 10:06:15
  * @FilePath: /nest学习/meeting_room_booking_system_backend/src/user/user.service.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -18,6 +18,8 @@ import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from './vo/login-user.vo';
+import { UpdatePwdDto } from './dto/update-user-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 @Injectable()
 export class UserService {
   private logger = new Logger();
@@ -172,5 +174,69 @@ export class UserService {
         return arr;
       }, []),
     };
+  }
+
+  async findUserDetailById(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    return user;
+  }
+
+  async updatePassword(userId: number, passwordDto: UpdatePwdDto) {
+    const captcha = await this.redisService.get(
+      `update_password_captcha_${passwordDto.email}`,
+    );
+    if (!captcha) {
+      throw new HttpException('验证码已过期', HttpStatus.BAD_REQUEST);
+    }
+
+    if (passwordDto.captcha !== captcha) {
+      throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.userRepository.findOneBy({
+      id: userId,
+    });
+    foundUser.password = md5(passwordDto.password);
+
+    try {
+      await this.userRepository.save(foundUser);
+      return '更新成功';
+    } catch (e) {
+      this.logger.error(e, UserService);
+      return '更新失败';
+    }
+  }
+
+  async updateUserInfo(userId: number, updateUserDto: UpdateUserDto) {
+    const captcha = await this.redisService.get(
+      `update_user_captcha_${updateUserDto.email}`,
+    );
+    if (!captcha) {
+      throw new HttpException('验证码已过期', HttpStatus.BAD_REQUEST);
+    }
+
+    if (updateUserDto.captcha !== captcha) {
+      throw new HttpException('验证码错误', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.userRepository.findOneBy({
+      id: userId,
+    });
+
+    if (updateUserDto.nickName) {
+      foundUser.nickName = updateUserDto.nickName;
+    }
+    if (updateUserDto.headPic) {
+      foundUser.headPic = updateUserDto.headPic;
+    }
+    try {
+      await this.userRepository.save(foundUser);
+      return '用户信息更新成功';
+    } catch (e) {
+      this.logger.error(e, UserService);
+      return '用户信息更新失败';
+    }
   }
 }

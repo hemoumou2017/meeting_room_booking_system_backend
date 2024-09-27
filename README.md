@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 09:39:49
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-26 16:44:44
+ * @LastEditTime: 2024-09-27 10:09:27
  * @FilePath: /nest学习/meeting_room_booking_system_backend/README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -73,4 +73,16 @@ $ npm run test:cov
 
 封装了几个自定义装饰器，用于方便的设置 metadata，从 request 取数据注入 handler。
 
+```
+## third step
+```
+添加了 interceptor 用来对响应格式做转换，改成 {code、message、data} 的格式，用到了 map 操作符。
+
+并且还用 interceptor 实现了接口访问的日志记录，用到 tap 操作符。
+
+然后实现了修改信息、修改密码的接口。
+
+这些流程都差不多，首先实现一个查询的接口用来回显数据，通过 vo 封装返回的数据。
+
+然后提交数据进行更新，用到的 userId 通过之前封装的 @UserInfo 装饰器从 request.user 来取。
 ```
