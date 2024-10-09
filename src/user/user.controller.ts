@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 15:05:02
+ * @LastEditTime: 2024-10-09 10:32:59
  * @FilePath: /meeting_room_booking_system_backend/src/user/user.controller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -18,6 +18,8 @@ import {
   BadRequestException,
   DefaultValuePipe,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -44,6 +46,9 @@ import {
 } from '@nestjs/swagger';
 import { LoginUserVo } from './vo/login-user.vo';
 import { RefreshTokenVo } from './vo/refresh-token.vo';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as path from 'path';
+import { storage } from 'src/my-file-storage';
 
 @ApiTags('用户管理模块')
 @Controller('user')
@@ -90,16 +95,13 @@ export class UserController {
   @Get('register-captcha')
   async getCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8);
-    await this.redisService.set(address, code);
+    await this.redisService.set(`captcha_${address}`, code, 5 * 60);
     await this.emailService.sendEmail({
       to: address,
       subject: '注册验证码',
       html: `您的注册验证码为：${code}`,
     });
-    return {
-      code: 200,
-      message: '发送成功',
-    };
+    return '发送成功';
   }
 
   @Get('init-data')
@@ -136,6 +138,7 @@ export class UserController {
       {
         userId: vo.userInfo.id,
         username: vo.userInfo.username,
+        email: vo.userInfo.email,
         roles: vo.userInfo.roles,
         permissions: vo.userInfo.permissions,
       },
@@ -181,6 +184,7 @@ export class UserController {
       {
         userId: vo.userInfo.id,
         username: vo.userInfo.username,
+        email: vo.userInfo.email,
         roles: vo.userInfo.roles,
         permissions: vo.userInfo.permissions,
       },
@@ -230,6 +234,7 @@ export class UserController {
         {
           userId: userInfo.id,
           username: userInfo.username,
+          email: userInfo.email,
           roles: userInfo.roles,
           permissions: userInfo.permissions,
         },
@@ -283,6 +288,7 @@ export class UserController {
         {
           userId: user.id,
           username: user.username,
+          email: user.email,
           roles: user.roles,
           permissions: user.permissions,
         },
@@ -338,7 +344,6 @@ export class UserController {
     return vo;
   }
 
-  @ApiBearerAuth()
   @ApiBody({
     type: UpdatePwdDto,
   })
@@ -347,15 +352,10 @@ export class UserController {
     description: '验证码已失效/不正确',
   })
   @Post(['update_password', 'admin/update_password'])
-  @RequireLogin()
-  async updatePassword(
-    @UserInfo('userId') userId: number,
-    @Body() passwordDto: UpdatePwdDto,
-  ) {
-    return this.userService.updatePassword(userId, passwordDto);
+  async updatePassword(@Body() passwordDto: UpdatePwdDto) {
+    return this.userService.updatePassword(passwordDto);
   }
 
-  @ApiBearerAuth()
   @ApiQuery({
     name: 'address',
     description: '邮箱地址',
@@ -365,7 +365,6 @@ export class UserController {
     type: String,
     description: '发送成功',
   })
-  @RequireLogin()
   @Get('update_password/captcha')
   async getUpdatePwdCaptcha(@Query('address') address: string) {
     const code = Math.random().toString().slice(2, 8);
@@ -405,8 +404,14 @@ export class UserController {
     return this.userService.updateUserInfo(userId, updateUserDto);
   }
 
+  @ApiBearerAuth()
+  @ApiResponse({
+    type: String,
+    description: '发送成功',
+  })
+  @RequireLogin()
   @Get('update/captcha')
-  async updatePwdCaptcha(@Query('address') address: string) {
+  async updatePwdCaptcha(@UserInfo('email') address: string) {
     const code = Math.random().toString().slice(2, 8);
     await this.redisService.set(
       `update_user_captcha_${address}`,
@@ -435,7 +440,7 @@ export class UserController {
   @RequireLogin()
   @Get('freeze')
   @RequireLogin()
-  async freeze(@Query('userId') userId: number) {
+  async freeze(@Query('id') userId: number) {
     await this.userService.freezeUserById(userId);
     return 'success';
   }
@@ -493,5 +498,29 @@ export class UserController {
       pageSize,
     );
     return data;
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      dest: 'uploads',
+      limits: {
+        fileSize: 1024 * 1024 * 3,
+      },
+      storage: storage,
+      fileFilter: (req, file, cb) => {
+        const extname = path.extname(file.originalname);
+        if (['.png', '.jpg', '.jpeg'].includes(extname)) {
+          cb(null, true);
+        } else {
+          cb(new BadRequestException('文件格式不正确'), false);
+        }
+      },
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+    return file.path;
+    // return await this.userService.uploadFile(file);
   }
 }

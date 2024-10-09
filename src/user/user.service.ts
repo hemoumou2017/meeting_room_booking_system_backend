@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
  * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 15:04:20
+ * @LastEditTime: 2024-10-09 10:31:42
  * @FilePath: /nest学习/meeting_room_booking_system_backend/src/user/user.service.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -63,16 +63,10 @@ export class UserService {
 
     try {
       await this.userRepository.save(newUser);
-      return {
-        code: 200,
-        msg: '注册成功',
-      };
+      return '注册成功';
     } catch (e) {
       this.logger.error(e, UserService);
-      return {
-        code: 200,
-        msg: '注册失败',
-      };
+      return '注册失败';
     }
   }
 
@@ -165,6 +159,7 @@ export class UserService {
     return {
       id: user.id,
       username: user.username,
+      email: user.email,
       roles: user.roles.map((role) => role.name),
       permissions: user.roles.reduce((arr, role) => {
         role.permissions.forEach((permission) => {
@@ -184,7 +179,7 @@ export class UserService {
     return user;
   }
 
-  async updatePassword(userId: number, passwordDto: UpdatePwdDto) {
+  async updatePassword(passwordDto: UpdatePwdDto) {
     const captcha = await this.redisService.get(
       `update_password_captcha_${passwordDto.email}`,
     );
@@ -197,8 +192,13 @@ export class UserService {
     }
 
     const foundUser = await this.userRepository.findOneBy({
-      id: userId,
+      username: passwordDto.username,
     });
+
+    if (foundUser.email !== passwordDto.email) {
+      throw new HttpException('邮箱不正确', HttpStatus.BAD_REQUEST);
+    }
+
     foundUser.password = md5(passwordDto.password);
 
     try {
@@ -244,13 +244,15 @@ export class UserService {
   async freezeUserById(id: number) {
     const user = await this.userRepository.findOneBy({ id });
     user.isFrozen = true;
-    try {
-      await this.userRepository.save(user);
-      return '用户已冻结';
-    } catch (e) {
-      this.logger.error(e, UserService);
-      return '用户冻结失败';
-    }
+    console.log('-----------------------', id, user);
+    await this.userRepository.save(user);
+    // try {
+    //   await this.userRepository.save(user);
+    //   return '用户已冻结';
+    // } catch (e) {
+    //   this.logger.error(e, UserService);
+    //   return '用户冻结失败';
+    // }
   }
 
   async findUsersByPage(
