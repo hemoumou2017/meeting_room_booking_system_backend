@@ -8,11 +8,9 @@ services:
       - mysql-container
       - redis-container
     ports:
-      - 3001:3001
+      - 3005:3005
     networks:
       - common-network
-    env_file:
-      - .env
   mysql-container:
     image: mysql
     volumes:
