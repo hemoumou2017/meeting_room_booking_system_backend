@@ -16,7 +16,7 @@ services:
   mysql-container:
     image: mysql
     volumes:
-      - /Users/he/mysql-data:/var/lib/mysql
+      - /Users/hmm/mysql-data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: meeting_room_booking_system
       MYSQL_ROOT_PASSWORD: hexin
@@ -25,7 +25,7 @@ services:
   redis-container:
     image: redis
     volumes:
-      - /Users/he/redis-data:/data
+      - /Users/hmm/redis-data:/data
     networks:
       - common-network
 networks:
