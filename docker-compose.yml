@@ -18,12 +18,16 @@ services:
     environment:
       MYSQL_DATABASE: meeting_room_booking_system
       MYSQL_ROOT_PASSWORD: hexin
+    ports:
+      - 3306:3306  
     networks:
       - common-network
   redis-container:
     image: redis
     volumes:
       - /Users/hmm/redis-data:/data
+    ports:
+      - 6379:6379  
     networks:
       - common-network
 networks:
