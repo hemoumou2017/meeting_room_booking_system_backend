@@ -1,7 +1,7 @@
 # version: '3.8'
 services:
   fe-app:
-    image: crpi-vrprd84kar2m221t.cn-hangzhou.personal.cr.aliyuncs.com/hemoumou/he
+    image: crpi-vrprd84kar2m221t.cn-hangzhou.personal.cr.aliyuncs.com/hemoumou/he:www
     ports:
       - 80:80
     depends_on:
