@@ -1,5 +1,13 @@
-import { MeetingRoom } from 'src/meeting-room/entities/meeting-room.entity';
-import { User } from 'src/user/entities/user.entity';
+/*
+ * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
+ * @Date: 2024-10-09 15:19:32
+ * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
+ * @LastEditTime: 2024-10-14 16:27:34
+ * @FilePath: /nest学习/meeting_room_booking_system_backend/src/booking/entities/booking.entity.ts
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ */
+import { MeetingRoom } from '../../meeting-room/entities/meeting-room.entity';
+import { User } from '../../user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,

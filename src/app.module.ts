@@ -28,6 +28,7 @@ import { MeetingRoom } from './meeting-room/entities/meeting-room.entity';
 import { BookingModule } from './booking/booking.module';
 import { Booking } from './booking/entities/booking.entity';
 import { StatisticModule } from './statistic/statistic.module';
+import { MinioModule } from './minio/minio.module';
 import * as path from 'path';
 
 @Module({
@@ -74,6 +75,7 @@ import * as path from 'path';
     MeetingRoomModule,
     BookingModule,
     StatisticModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [
