@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 09:39:49
  * @LastEditors: 何欣 1254409474@qq.com
- * @LastEditTime: 2024-10-16 14:46:53
+ * @LastEditTime: 2024-10-16 15:14:22
  * @FilePath: /nest学习/meeting_room_booking_system_backend/README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -142,4 +142,10 @@ google 登录的 callback 里重定向到网站首页，然后通过 cookie 携�
 docker-compose.yml：添加了 minio 的容器，和 nest 集成成功，并且添加了 mysql 容器启动时设置字符集的命令，还添加了 restart 容器重启配置
 dto：用 mapped-types 包的 PickTypes 等 api 对 dto 做了简化，直接复用已有 dto 的字段
 captcha：验证码用完之后就从 redis 中删掉，并且前端提示验证码失效
+```
+
+## 第八步
+
+```
+集成了日志框架 winston
 ```
