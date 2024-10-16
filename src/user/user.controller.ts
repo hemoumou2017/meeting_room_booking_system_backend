@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
  * @LastEditors: 何欣 1254409474@qq.com
- * @LastEditTime: 2024-10-16 09:37:14
+ * @LastEditTime: 2024-10-16 10:32:27
  * @FilePath: /meeting_room_booking_system_backend/src/user/user.controller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -541,6 +541,7 @@ export class UserController {
 
     const foundUser = await this.userService.findUserByEmail(req.user.email);
 
+    console.log('foundUser', foundUser);
     if (foundUser) {
       const vo = new LoginUserVo();
       vo.userInfo = {
@@ -641,6 +642,6 @@ export class UserController {
       res.cookie('refreshToken', vo.refreshToken);
     }
 
-    res.redirect('http://localhost:3000/');
+    res.redirect('http://localhost:3002/');
   }
 }
