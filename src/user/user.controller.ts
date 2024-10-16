@@ -2,7 +2,7 @@
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
  * @LastEditors: 何欣 1254409474@qq.com
- * @LastEditTime: 2024-10-16 10:49:28
+ * @LastEditTime: 2024-10-16 14:45:20
  * @FilePath: /meeting_room_booking_system_backend/src/user/user.controller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -358,7 +358,9 @@ export class UserController {
   })
   @Post(['update_password', 'admin/update_password'])
   async updatePassword(@Body() passwordDto: UpdatePwdDto) {
-    return this.userService.updatePassword(passwordDto);
+    const res = this.userService.updatePassword(passwordDto);
+    this.redisService.del(`update_password_captcha_${passwordDto.email}`);
+    return res;
   }
 
   @ApiQuery({
@@ -406,7 +408,9 @@ export class UserController {
     @UserInfo('userId') userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateUserInfo(userId, updateUserDto);
+    const res = this.userService.updateUserInfo(userId, updateUserDto);
+    this.redisService.del(`update_user_captcha_${updateUserDto.email}`);
+    return res;
   }
 
   @ApiBearerAuth()

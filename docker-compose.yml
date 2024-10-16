@@ -15,6 +15,7 @@ services:
     depends_on:
       - mysql-container
       - redis-container
+    restart: always
     # ports:
     #   - 3005:3005
     networks:
@@ -23,11 +24,13 @@ services:
     image: mysql
     volumes:
       - /Users/hmm/mysql-data:/var/lib/mysql
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci # 设置默认字符集  
     environment:
       MYSQL_DATABASE: meeting_room_booking_system
       MYSQL_ROOT_PASSWORD: hexin
     ports:
       - 3306:3306  
+    restart: always
     networks:
       - common-network
   redis-container:
@@ -36,6 +39,20 @@ services:
       - /Users/hmm/redis-data:/data
     ports:
       - 6379:6379  
+    restart: always 
+    networks:
+      - common-network
+  minio-container:
+    image: bitnami/minio:latest
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - /Users/hmm/minio:/bitnami/minio/data
+    environment:
+      MINIO_ROOT_USER: hexin
+      MINIO_ROOT_PASSWORD: 960716lvwxj
+    restart: always 
     networks:
       - common-network
 networks:
