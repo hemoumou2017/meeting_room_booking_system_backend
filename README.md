@@ -1,8 +1,8 @@
 <!--
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 09:39:49
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-09-27 15:06:07
+ * @LastEditors: 何欣 1254409474@qq.com
+ * @LastEditTime: 2024-10-16 09:50:42
  * @FilePath: /nest学习/meeting_room_booking_system_backend/README.md
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 -->
@@ -119,4 +119,18 @@ swagger 生成了接口文档。
 返回对象的接口需要把它封装成 vo，然后再添加 @ApiProperty。
 
 
+```
+
+## 第六步
+
+```
+创建新的 google 应用，拿到 client id 和 client secret。
+
+用 passport-google-oauth20 的策略来实现了 google 登录。
+
+在 callback 的路由里，基于 google 返回的信息做了自动注册，如果用户已经注册过，就直接返回登录信息。
+
+google 登录的 callback 里重定向到网站首页，然后通过 cookie 携带 userInfo、accessToken、refreshToken 等信息。
+
+前端代码再处理下 cookie，同步登录状态
 ```
