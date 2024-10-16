@@ -1,8 +1,8 @@
 /*
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-10-09 10:31:42
+ * @LastEditors: 何欣 1254409474@qq.com
+ * @LastEditTime: 2024-10-16 09:47:02
  * @FilePath: /nest学习/meeting_room_booking_system_backend/src/user/user.service.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -10,7 +10,7 @@ import { Injectable, Logger, Inject } from '@nestjs/common';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { LoginType, User } from './entities/user.entity';
 import { RedisService } from '../redis/redis.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { md5 } from 'src/utils';
@@ -114,6 +114,7 @@ export class UserService {
     const foundUser = await this.userRepository.findOne({
       where: {
         username: loginUserDto.username,
+        loginType: LoginType.USERNAME_PASSWORD,
         isAdmin,
       },
       relations: ['roles', 'roles.permissions'],
@@ -339,5 +340,30 @@ export class UserService {
     vo.users = users;
     vo.totalCount = totalCount;
     return vo;
+  }
+
+  async findUserByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        email: email,
+        isAdmin: false,
+      },
+      relations: ['roles', 'roles.permissions'],
+    });
+
+    return user;
+  }
+
+  async registerByGoogleInfo(email: string, nickName: string, headPic: string) {
+    const newUser = new User();
+    newUser.email = email;
+    newUser.nickName = nickName;
+    newUser.headPic = headPic;
+    newUser.password = '';
+    newUser.username = email + Math.random().toString().slice(2, 10);
+    newUser.loginType = LoginType.GOOGLE;
+    newUser.isAdmin = false;
+
+    return this.userRepository.save(newUser);
   }
 }

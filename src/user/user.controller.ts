@@ -1,8 +1,8 @@
 /*
  * @Author: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
  * @Date: 2024-09-26 10:03:54
- * @LastEditors: error: error: git config user.name & please set dead value or install git && error: git config user.email & please set dead value or install git & please set dead value or install git
- * @LastEditTime: 2024-10-09 10:32:59
+ * @LastEditors: 何欣 1254409474@qq.com
+ * @LastEditTime: 2024-10-16 09:37:14
  * @FilePath: /meeting_room_booking_system_backend/src/user/user.controller.ts
  * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  */
@@ -20,6 +20,9 @@ import {
   HttpStatus,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
+  Req,
+  Res,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -49,6 +52,8 @@ import { RefreshTokenVo } from './vo/refresh-token.vo';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as path from 'path';
 import { storage } from 'src/my-file-storage';
+import { AuthGuard } from '@nestjs/passport';
+import { Request, Response } from 'express';
 
 @ApiTags('用户管理模块')
 @Controller('user')
@@ -522,5 +527,120 @@ export class UserController {
     console.log(file);
     return file.path;
     // return await this.userService.uploadFile(file);
+  }
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {}
+
+  @Get('callback/google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
+    if (!req.user) {
+      throw new BadRequestException('google 登录失败');
+    }
+
+    const foundUser = await this.userService.findUserByEmail(req.user.email);
+
+    if (foundUser) {
+      const vo = new LoginUserVo();
+      vo.userInfo = {
+        id: foundUser.id,
+        username: foundUser.username,
+        nickName: foundUser.nickName,
+        email: foundUser.email,
+        phoneNumber: foundUser.phoneNumber,
+        headPic: foundUser.headPic,
+        createTime: foundUser.createTime.getTime(),
+        isFrozen: foundUser.isFrozen,
+        isAdmin: foundUser.isAdmin,
+        roles: foundUser.roles.map((item) => item.name),
+        permissions: foundUser.roles.reduce((arr, item) => {
+          item.permissions.forEach((permission) => {
+            if (arr.indexOf(permission) === -1) {
+              arr.push(permission);
+            }
+          });
+          return arr;
+        }, []),
+      };
+      vo.accessToken = this.jwtService.sign(
+        {
+          userId: vo.userInfo.id,
+          username: vo.userInfo.username,
+          email: vo.userInfo.email,
+          roles: vo.userInfo.roles,
+          permissions: vo.userInfo.permissions,
+        },
+        {
+          expiresIn:
+            this.configService.get('jwt_access_token_expires_time') || '30m',
+        },
+      );
+
+      vo.refreshToken = this.jwtService.sign(
+        {
+          userId: vo.userInfo.id,
+        },
+        {
+          expiresIn:
+            this.configService.get('jwt_refresh_token_expres_time') || '7d',
+        },
+      );
+
+      res.cookie('userInfo', JSON.stringify(vo.userInfo));
+      res.cookie('accessToken', vo.accessToken);
+      res.cookie('refreshToken', vo.refreshToken);
+    } else {
+      const user = await this.userService.registerByGoogleInfo(
+        req.user.email,
+        req.user.firstName + ' ' + req.user.lastName,
+        req.user.picture,
+      );
+
+      const vo = new LoginUserVo();
+      vo.userInfo = {
+        id: user.id,
+        username: user.username,
+        nickName: user.nickName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        headPic: user.headPic,
+        createTime: user.createTime.getTime(),
+        isFrozen: user.isFrozen,
+        isAdmin: user.isAdmin,
+        roles: [],
+        permissions: [],
+      };
+
+      vo.accessToken = this.jwtService.sign(
+        {
+          userId: vo.userInfo.id,
+          username: vo.userInfo.username,
+          email: vo.userInfo.email,
+          roles: vo.userInfo.roles,
+          permissions: vo.userInfo.permissions,
+        },
+        {
+          expiresIn:
+            this.configService.get('jwt_access_token_expires_time') || '30m',
+        },
+      );
+
+      vo.refreshToken = this.jwtService.sign(
+        {
+          userId: vo.userInfo.id,
+        },
+        {
+          expiresIn:
+            this.configService.get('jwt_refresh_token_expres_time') || '7d',
+        },
+      );
+
+      res.cookie('userInfo', JSON.stringify(vo.userInfo));
+      res.cookie('accessToken', vo.accessToken);
+      res.cookie('refreshToken', vo.refreshToken);
+    }
+
+    res.redirect('http://localhost:3000/');
   }
 }
